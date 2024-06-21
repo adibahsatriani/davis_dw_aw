@@ -3,11 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pymysql
 
+def run_query(query):
+    conn = st.connection("mydb", type="sql", autocommit=True)
+    result = conn.query(query)
+    return pd.DataFrame(result)
+    
 # Fungsi untuk grafik 1 di Comparisson
 def comparisson_graph_1():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
         cursor.execute(dimtime_query)
         dimtime = pd.DataFrame(cursor.fetchall(), columns=['TimeKey', 'CalendarYear', 'EnglishMonthName'])
@@ -42,8 +45,6 @@ def comparisson_graph_1():
 # Fungsi untuk grafik 2 di Comparisson
 def comparisson_graph_2():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimsalesterritory_query = 'SELECT SalesTerritoryKey, SalesTerritoryRegion FROM dimsalesterritory'
         cursor.execute(dimsalesterritory_query)
         dimsalesterritory = pd.DataFrame(cursor.fetchall(), columns=['SalesTerritoryKey', 'SalesTerritoryRegion'])
@@ -70,8 +71,6 @@ def comparisson_graph_2():
 # Fungsi untuk grafik 1 di Relationship
 def relationship_graph_1():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimpromotion_query = 'SELECT PromotionKey, EnglishPromotionName, DiscountPct FROM dimpromotion'
         cursor.execute(dimpromotion_query)
         dimpromotion = pd.DataFrame(cursor.fetchall(), columns=['PromotionKey', 'EnglishPromotionName', 'DiscountPct'])
@@ -95,8 +94,6 @@ def relationship_graph_1():
 # Fungsi untuk grafik 2 di Relationship
 def relationship_graph_2():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimproduct_query = 'SELECT ProductKey, EnglishProductName, ListPrice FROM dimproduct'
         cursor.execute(dimproduct_query)
         dimproduct = pd.DataFrame(cursor.fetchall(), columns=['ProductKey', 'EnglishProductName', 'ListPrice'])
@@ -120,8 +117,6 @@ def relationship_graph_2():
 # Fungsi untuk grafik 1 di Composition
 def composition_graph_1():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimcustomer_query = 'SELECT CustomerKey, GeographyKey FROM dimcustomer'
         cursor.execute(dimcustomer_query)
         dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'GeographyKey'])
@@ -151,8 +146,6 @@ def composition_graph_1():
 # Fungsi untuk grafik 2 di Composition
 def composition_graph_2():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimcustomer_query = 'SELECT CustomerKey, EnglishEducation, GeographyKey FROM dimcustomer'
         cursor.execute(dimcustomer_query)
         dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'EnglishEducation', 'GeographyKey'])
@@ -193,8 +186,6 @@ def composition_graph_2():
 # Fungsi untuk grafik Distribution
 def distribution_graph_1():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimproduct_query = 'SELECT ProductKey, EnglishProductName, ListPrice FROM dimproduct'
         cursor.execute(dimproduct_query)
         dimproduct = pd.DataFrame(cursor.fetchall(), columns=['ProductKey', 'EnglishProductName', 'ListPrice'])
