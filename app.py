@@ -3,7 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mysql.connector
 
-conn = st.connection("mydb", type="sql", autocomit=True)
+def create_connection():
+    try:
+    conn = st.connection("mydb", type="sql", autocomit=True)
+    return conn
+except mysql.connector.Error as err:
+st.error(f"Error: {err}")
+return None
+
 
 # Fungsi untuk grafik 1 di Comparisson
 def comparisson_graph_1():
