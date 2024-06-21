@@ -12,12 +12,12 @@ def run_query(query):
 def comparisson_graph_1():
     try:
         dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
-        cursor.execute(dimtime_query)
-        dimtime = pd.DataFrame(cursor.fetchall(), columns=['TimeKey', 'CalendarYear', 'EnglishMonthName'])
+        run_query.execute(dimtime_query)
+        dimtime = pd.DataFrame(run_query.fetchall(), columns=['TimeKey', 'CalendarYear', 'EnglishMonthName'])
         
         factinternetsales_query = 'SELECT OrderDateKey, SalesAmount FROM factinternetsales'
-        cursor.execute(factinternetsales_query)
-        factinternetsales = pd.DataFrame(cursor.fetchall(), columns=['OrderDateKey', 'SalesAmount'])
+        run_query.execute(factinternetsales_query)
+        factinternetsales = pd.DataFrame(run_query.fetchall(), columns=['OrderDateKey', 'SalesAmount'])
         
         merged_data = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
         sales_per_month_year = merged_data.groupby(['CalendarYear', 'EnglishMonthName'])['SalesAmount'].sum().reset_index()
