@@ -1,202 +1,278 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import pymysql
+import mysql.connector
 
-def run_query(query):
-    conn = st.experimental_connection("mydb", type="sql", autocommit=True)
-    result = conn.query(query)
-    return pd.DataFrame(result)
-    
-# Fungsi untuk grafik 1 di Comparisson
-def comparison_graph_1():
+# Fungsi untuk membuat koneksi ke database
+def create_connection():
     try:
-        dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
-        dimtime = run_query(dimtime_query)
-        
-        factinternetsales_query = 'SELECT OrderDateKey, SalesAmount FROM factinternetsales'
-        factinternetsales = run_query(factinternetsales_query)
-        
-        merged_data = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
-        sales_per_month_year = merged_data.groupby(['CalendarYear', 'EnglishMonthName'])['SalesAmount'].sum().reset_index()
-        
-        month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        sales_per_month_year['MonthOrder'] = pd.Categorical(sales_per_month_year['EnglishMonthName'], categories=month_order, ordered=True)
-        sales_per_month_year = sales_per_month_year.sort_values(by=['CalendarYear', 'MonthOrder'])
-        
-        plt.figure(figsize=(14, 8))
-        for year in sales_per_month_year['CalendarYear'].unique():
-            yearly_data = sales_per_month_year[sales_per_month_year['CalendarYear'] == year]
-            plt.plot(yearly_data['MonthOrder'].cat.codes, yearly_data['SalesAmount'], marker='o', label=year)
+        conn = mysql.connector.connect(
+            host="kubela.id",
+            user="davis2024irwan",
+            password="wh451n9m@ch1n3", 
+            port="3306",
+            database="aw"
+        )
+        return conn
+    except mysql.connector.Error as err:
+        st.error(f"Error: {err}")
+        return None
+
+# Fungsi untuk grafik 1 di Comparisson
+def comparisson_graph_1():
+    try:
+        conn = create_connection()
+        if conn:
+            cursor = conn.cursor()
+            dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
+            cursor.execute(dimtime_query)
+            dimtime = pd.DataFrame(cursor.fetchall(), columns=['TimeKey', 'CalendarYear', 'EnglishMonthName'])
             
-        plt.xticks(ticks=range(12), labels=month_order, rotation=45)
-        plt.xlabel('Month')
-        plt.ylabel('Total Sales Amount')
-        plt.title('Total Sales per Month/Year')
-        plt.legend(title='Year')
-        plt.grid(True)
-        st.pyplot(plt)
-        
-    except Exception as e:
+            factinternetsales_query = 'SELECT OrderDateKey, SalesAmount FROM factinternetsales'
+            cursor.execute(factinternetsales_query)
+            factinternetsales = pd.DataFrame(cursor.fetchall(), columns=['OrderDateKey', 'SalesAmount'])
+            
+            merged_data = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
+            sales_per_month_year = merged_data.groupby(['CalendarYear', 'EnglishMonthName'])['SalesAmount'].sum().reset_index()
+            
+            month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+            sales_per_month_year['MonthOrder'] = pd.Categorical(sales_per_month_year['EnglishMonthName'], categories=month_order, ordered=True)
+            sales_per_month_year = sales_per_month_year.sort_values(by=['CalendarYear', 'MonthOrder'])
+            
+            plt.figure(figsize=(14, 8))
+            for year in sales_per_month_year['CalendarYear'].unique():
+                yearly_data = sales_per_month_year[sales_per_month_year['CalendarYear'] == year]
+                plt.plot(yearly_data['MonthOrder'].cat.codes, yearly_data['SalesAmount'], marker='o', label=year)
+                
+            plt.xticks(ticks=range(12), labels=month_order, rotation=45)
+            plt.xlabel('Month')
+            plt.ylabel('Total Sales Amount')
+            plt.title('Total Sales per Month/Year')
+            plt.legend(title='Year')
+            plt.grid(True)
+            st.pyplot(plt)
+            
+        else:
+            st.error("Failed to connect to database.")
+            
+    except mysql.connector.Error as e:
         st.error(f"Database connection error: {e}")
+    finally:
+        if conn:
+            conn.close()
+
 # Fungsi untuk grafik 2 di Comparisson
 def comparisson_graph_2():
     try:
-        dimsalesterritory_query = 'SELECT SalesTerritoryKey, SalesTerritoryRegion FROM dimsalesterritory'
-        cursor.execute(dimsalesterritory_query)
-        dimsalesterritory = pd.DataFrame(cursor.fetchall(), columns=['SalesTerritoryKey', 'SalesTerritoryRegion'])
-        
-        factinternetsales_query = 'SELECT SalesTerritoryKey, SalesAmount FROM factinternetsales'
-        cursor.execute(factinternetsales_query)
-        factinternetsales = pd.DataFrame(cursor.fetchall(), columns=['SalesTerritoryKey', 'SalesAmount'])
-        
-        merged_data = pd.merge(factinternetsales, dimsalesterritory, on='SalesTerritoryKey')
-        sales_per_territory = merged_data.groupby('SalesTerritoryRegion')['SalesAmount'].sum().reset_index()
-        
-        plt.figure(figsize=(14, 8))
-        plt.bar(sales_per_territory['SalesTerritoryRegion'], sales_per_territory['SalesAmount'], color='skyblue')
-        plt.xlabel('Sales Territory Region')
-        plt.ylabel('Total Sales Amount')
-        plt.title('Total Sales per Sales Territory Region')
-        plt.xticks(rotation=45)
-        plt.grid(axis='y')
-        st.pyplot(plt)
-        
-    except Exception as e:
+        conn = create_connection()
+        if conn:
+            cursor = conn.cursor()
+            dimsalesterritory_query = 'SELECT SalesTerritoryKey, SalesTerritoryRegion FROM dimsalesterritory'
+            cursor.execute(dimsalesterritory_query)
+            dimsalesterritory = pd.DataFrame(cursor.fetchall(), columns=['SalesTerritoryKey', 'SalesTerritoryRegion'])
+            
+            factinternetsales_query = 'SELECT SalesTerritoryKey, SalesAmount FROM factinternetsales'
+            cursor.execute(factinternetsales_query)
+            factinternetsales = pd.DataFrame(cursor.fetchall(), columns=['SalesTerritoryKey', 'SalesAmount'])
+            
+            merged_data = pd.merge(factinternetsales, dimsalesterritory, on='SalesTerritoryKey')
+            sales_per_territory = merged_data.groupby('SalesTerritoryRegion')['SalesAmount'].sum().reset_index()
+            
+            plt.figure(figsize=(14, 8))
+            plt.bar(sales_per_territory['SalesTerritoryRegion'], sales_per_territory['SalesAmount'], color='skyblue')
+            plt.xlabel('Sales Territory Region')
+            plt.ylabel('Total Sales Amount')
+            plt.title('Total Sales per Sales Territory Region')
+            plt.xticks(rotation=45)
+            plt.grid(axis='y')
+            st.pyplot(plt)
+            
+        else:
+            st.error("Failed to connect to database.")
+            
+    except mysql.connector.Error as e:
         st.error(f"Database connection error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 # Fungsi untuk grafik 1 di Relationship
 def relationship_graph_1():
     try:
-        dimpromotion_query = 'SELECT PromotionKey, EnglishPromotionName, DiscountPct FROM dimpromotion'
-        cursor.execute(dimpromotion_query)
-        dimpromotion = pd.DataFrame(cursor.fetchall(), columns=['PromotionKey', 'EnglishPromotionName', 'DiscountPct'])
+        conn = create_connection()
+        if conn:
+            cursor = conn.cursor()
+            dimpromotion_query = 'SELECT PromotionKey, EnglishPromotionName, DiscountPct FROM dimpromotion'
+            cursor.execute(dimpromotion_query)
+            dimpromotion = pd.DataFrame(cursor.fetchall(), columns=['PromotionKey', 'EnglishPromotionName', 'DiscountPct'])
 
-        factinternetsales_query = 'SELECT PromotionKey, SalesAmount FROM factinternetsales'
-        cursor.execute(factinternetsales_query)
-        factinternetsales = pd.DataFrame(cursor.fetchall(), columns=['PromotionKey', 'SalesAmount'])
+            factinternetsales_query = 'SELECT PromotionKey, SalesAmount FROM factinternetsales'
+            cursor.execute(factinternetsales_query)
+            factinternetsales = pd.DataFrame(cursor.fetchall(), columns=['PromotionKey', 'SalesAmount'])
 
-        merged_data = pd.merge(factinternetsales, dimpromotion, on='PromotionKey')
+            merged_data = pd.merge(factinternetsales, dimpromotion, on='PromotionKey')
 
-        plt.figure(figsize=(12, 8))
-        plt.scatter(merged_data['DiscountPct'], merged_data['SalesAmount'], alpha=0.5)
-        plt.xlabel('Discount Percentage')
-        plt.ylabel('Sales Amount')
-        plt.title('Discount Percentage vs Sales Amount (Persentase Diskon vs Jumlah Penjualan)')
-        st.pyplot(plt)
-        
-    except Exception as e:
-        st.error(f"Database connection error: {e}")
+            plt.figure(figsize=(12, 8))
+            plt.scatter(merged_data['DiscountPct'], merged_data['SalesAmount'], alpha=0.5)
+            plt.xlabel('Discount Percentage')
+            plt.ylabel('Sales Amount')
+            plt.title('Discount Percentage vs Sales Amount (Persentase Diskon vs Jumlah Penjualan)')
+            st.pyplot(plt)
+            
+        else:
+            st.error("Gagal terhubung ke database.")
+            
+    except mysql.connector.Error as e:
+        st.error(f"Kesalahan koneksi database: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 # Fungsi untuk grafik 2 di Relationship
 def relationship_graph_2():
     try:
-        dimproduct_query = 'SELECT ProductKey, EnglishProductName, ListPrice FROM dimproduct'
-        cursor.execute(dimproduct_query)
-        dimproduct = pd.DataFrame(cursor.fetchall(), columns=['ProductKey', 'EnglishProductName', 'ListPrice'])
-        
-        dimcustomer_query = 'SELECT CustomerKey, GeographyKey, YearlyIncome FROM dimcustomer'
-        cursor.execute(dimcustomer_query)
-        dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'GeographyKey', 'YearlyIncome'])
+        conn = create_connection()
+        if conn:
+            cursor = conn.cursor()
+            dimproduct_query = 'SELECT ProductKey, EnglishProductName, ListPrice FROM dimproduct'
+            cursor.execute(dimproduct_query)
+            dimproduct = pd.DataFrame(cursor.fetchall(), columns=['ProductKey', 'EnglishProductName', 'ListPrice'])
+            
+            dimcustomer_query = 'SELECT CustomerKey, GeographyKey, YearlyIncome FROM dimcustomer'
+            cursor.execute(dimcustomer_query)
+            dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'GeographyKey', 'YearlyIncome'])
 
-        merged_data = pd.merge(dimproduct, dimcustomer, left_on='ProductKey', right_on='GeographyKey')
+            merged_data = pd.merge(dimproduct, dimcustomer, left_on='ProductKey', right_on='GeographyKey')
 
-        plt.figure(figsize=(12, 8))
-        plt.scatter(merged_data['ListPrice'], merged_data['YearlyIncome'], alpha=0.5)
-        plt.xlabel('List Price')
-        plt.ylabel('Yearly Income')
-        plt.title('List Price vs Yearly Income (Harga Daftar vs Pendapatan Tahunan)')
-        st.pyplot(plt)
-        
-    except Exception as e:
+            plt.figure(figsize=(12, 8))
+            plt.scatter(merged_data['ListPrice'], merged_data['YearlyIncome'], alpha=0.5)
+            plt.xlabel('List Price')
+            plt.ylabel('Yearly Income')
+            plt.title('List Price vs Yearly Income (Harga Daftar vs Pendapatan Tahunan)')
+            st.pyplot(plt)
+            
+        else:
+            st.error("Failed to connect to database.")
+            
+    except mysql.connector.Error as e:
         st.error(f"Database connection error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 # Fungsi untuk grafik 1 di Composition
 def composition_graph_1():
     try:
-        dimcustomer_query = 'SELECT CustomerKey, GeographyKey FROM dimcustomer'
-        cursor.execute(dimcustomer_query)
-        dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'GeographyKey'])
-        
-        dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
-        cursor.execute(dimgeography_query)
-        dimgeography = pd.DataFrame(cursor.fetchall(), columns=['GeographyKey', 'EnglishCountryRegionName'])
+        conn = create_connection()
+        if conn:
+            cursor = conn.cursor()
+            dimcustomer_query = 'SELECT CustomerKey, GeographyKey FROM dimcustomer'
+            cursor.execute(dimcustomer_query)
+            dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'GeographyKey'])
+            
+            dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
+            cursor.execute(dimgeography_query)
+            dimgeography = pd.DataFrame(cursor.fetchall(), columns=['GeographyKey', 'EnglishCountryRegionName'])
 
-        merged_data = pd.merge(dimcustomer, dimgeography, on='GeographyKey')
+            merged_data = pd.merge(dimcustomer, dimgeography, on='GeographyKey')
 
-        grouped_data = merged_data.groupby('EnglishCountryRegionName')['CustomerKey'].nunique().reset_index()
+            grouped_data = merged_data.groupby('EnglishCountryRegionName')['CustomerKey'].nunique().reset_index()
 
-        plt.figure(figsize=(12, 8))
-        wedges, texts, autotexts = plt.pie(grouped_data['CustomerKey'], labels=grouped_data['EnglishCountryRegionName'], autopct='%1.1f%%', startangle=140, pctdistance=0.85)
+            plt.figure(figsize=(12, 8))
+            wedges, texts, autotexts = plt.pie(grouped_data['CustomerKey'], labels=grouped_data['EnglishCountryRegionName'], autopct='%1.1f%%', startangle=140, pctdistance=0.85)
 
-        centre_circle = plt.Circle((0, 0), 0.70, fc='white')
-        fig = plt.gcf()
-        fig.gca().add_artist(centre_circle)
+            centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+            fig = plt.gcf()
+            fig.gca().add_artist(centre_circle)
 
-        plt.title('Percentage of Unique Customers by Country (Persentase Customer Unik per Negara)')
-        plt.tight_layout()
-        st.pyplot(plt)
-        
-    except Exception as e:
+            plt.title('Percentage of Unique Customers by Country (Persentase Customer Unik per Negara)')
+            plt.tight_layout()
+            st.pyplot(plt)
+            
+        else:
+            st.error("Failed to connect to database.")
+            
+    except mysql.connector.Error as e:
         st.error(f"Database connection error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 # Fungsi untuk grafik 2 di Composition
 def composition_graph_2():
     try:
-        dimcustomer_query = 'SELECT CustomerKey, EnglishEducation, GeographyKey FROM dimcustomer'
-        cursor.execute(dimcustomer_query)
-        dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'EnglishEducation', 'GeographyKey'])
+        conn = create_connection()
+        if conn:
+            cursor = conn.cursor()
+            dimcustomer_query = 'SELECT CustomerKey, EnglishEducation, GeographyKey FROM dimcustomer'
+            cursor.execute(dimcustomer_query)
+            dimcustomer = pd.DataFrame(cursor.fetchall(), columns=['CustomerKey', 'EnglishEducation', 'GeographyKey'])
+            
+            dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
+            cursor.execute(dimgeography_query)
+            dimgeography = pd.DataFrame(cursor.fetchall(), columns=['GeographyKey', 'EnglishCountryRegionName'])
+
+            merged_data = pd.merge(dimcustomer, dimgeography, on='GeographyKey')
+
+            composition_data = merged_data.groupby(['EnglishCountryRegionName', 'EnglishEducation']).size().unstack()
         
-        dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
-        cursor.execute(dimgeography_query)
-        dimgeography = pd.DataFrame(cursor.fetchall(), columns=['GeographyKey', 'EnglishCountryRegionName'])
+            country = composition_data.index
+            education_levels = composition_data.columns
+            values = composition_data.sum(axis=0)
 
-        merged_data = pd.merge(dimcustomer, dimgeography, on='GeographyKey')
+            colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 
-        composition_data = merged_data.groupby(['EnglishCountryRegionName', 'EnglishEducation']).size().unstack()
-    
-        country = composition_data.index
-        education_levels = composition_data.columns
-        values = composition_data.sum(axis=0)
+            color_map = {education: color for education, color in zip(education_levels, colors)}
 
-        colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+            assigned_colors = [color_map[edu] for edu in education_levels]
 
-        color_map = {education: color for education, color in zip(education_levels, colors)}
+            fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(aspect="equal"))
 
-        assigned_colors = [color_map[edu] for edu in education_levels]
+            wedges, texts, autotexts = ax.pie(values, autopct='%1.1f%%', startangle=140, pctdistance=0.85, colors=assigned_colors)
 
-        fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(aspect="equal"))
+            centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+            fig.gca().add_artist(centre_circle)
 
-        wedges, texts, autotexts = ax.pie(values, autopct='%1.1f%%', startangle=140, pctdistance=0.85, colors=assigned_colors)
+            ax.legend(wedges, education_levels, title="Education Levels", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
-        centre_circle = plt.Circle((0, 0), 0.70, fc='white')
-        fig.gca().add_artist(centre_circle)
-
-        ax.legend(wedges, education_levels, title="Education Levels", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-
-        plt.title('Komposisi Edukasi Pelanggan per Country')
-        st.pyplot(plt)
-        
-    except Exception as e:
+            plt.title('Komposisi Edukasi Pelanggan per Country')
+            st.pyplot(plt)
+            
+        else:
+            st.error("Failed to connect to database.")
+            
+    except mysql.connector.Error as e:
         st.error(f"Database connection error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 # Fungsi untuk grafik Distribution
 def distribution_graph_1():
     try:
-        dimproduct_query = 'SELECT ProductKey, EnglishProductName, ListPrice FROM dimproduct'
-        cursor.execute(dimproduct_query)
-        dimproduct = pd.DataFrame(cursor.fetchall(), columns=['ProductKey', 'EnglishProductName', 'ListPrice'])
+        conn = create_connection()
+        if conn:
+            cursor = conn.cursor()
+            dimproduct_query = 'SELECT ProductKey, EnglishProductName, ListPrice FROM dimproduct'
+            cursor.execute(dimproduct_query)
+            dimproduct = pd.DataFrame(cursor.fetchall(), columns=['ProductKey', 'EnglishProductName', 'ListPrice'])
 
-        # Buat Histogram
-        plt.figure(figsize=(10, 6))
-        plt.hist(dimproduct['ListPrice'], bins=20, color='skyblue', edgecolor='black')
-        plt.xlabel('Harga Produk')
-        plt.ylabel('Frekuensi')
-        plt.title('Distribusi Harga Produk')
-        st.pyplot(plt)
-        
-    except Exception as e:
+            # Buat Histogram
+            plt.figure(figsize=(10, 6))
+            plt.hist(dimproduct['ListPrice'], bins=20, color='skyblue', edgecolor='black')
+            plt.xlabel('Harga Produk')
+            plt.ylabel('Frekuensi')
+            plt.title('Distribusi Harga Produk')
+            st.pyplot(plt)
+            
+        else:
+            st.error("Failed to connect to database.")
+            
+    except mysql.connector.Error as e:
         st.error(f"Database connection error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 # Sidebar
 st.sidebar.title('Dashboard Options')
