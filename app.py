@@ -3,57 +3,53 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mysql.connector
 
-def create_connection():
+def execute_query(query):
+    conn = create_connection()
+    if conn is None:
+        return pd.DataFrame()  # Return an empty DataFrame if connection fails
     try:
-        conn = st.connection("mydb", type="sql", autocomit=True)
-        )
-        return conn
-    except mysql.connector.Error as err:
+        cursor = conn.cursor()
+        cursor.execute(query)
+        columns = [col[0] for col in cursor.description]
+        data = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return pd.DataFrame(data, columns=columns)
+    except Exception as err:
         st.error(f"Error: {err}")
-        return None
+        return pd.DataFrame()
 
-# Fungsi untuk grafik 1 di Comparisson
+# Function for Comparisson Graph 1
 def comparisson_graph_1():
-    try:
-        conn = create_connection()
-        if conn:
-            cursor = conn.cursor()
-            dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
-            cursor.execute(dimtime_query)
-            dimtime = pd.DataFrame(cursor.fetchall(), columns=['TimeKey', 'CalendarYear', 'EnglishMonthName'])
-            
-            factinternetsales_query = 'SELECT OrderDateKey, SalesAmount FROM factinternetsales'
-            cursor.execute(factinternetsales_query)
-            factinternetsales = pd.DataFrame(cursor.fetchall(), columns=['OrderDateKey', 'SalesAmount'])
-            
-            merged_data = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
-            sales_per_month_year = merged_data.groupby(['CalendarYear', 'EnglishMonthName'])['SalesAmount'].sum().reset_index()
-            
-            month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-            sales_per_month_year['MonthOrder'] = pd.Categorical(sales_per_month_year['EnglishMonthName'], categories=month_order, ordered=True)
-            sales_per_month_year = sales_per_month_year.sort_values(by=['CalendarYear', 'MonthOrder'])
-            
-            plt.figure(figsize=(14, 8))
-            for year in sales_per_month_year['CalendarYear'].unique():
-                yearly_data = sales_per_month_year[sales_per_month_year['CalendarYear'] == year]
-                plt.plot(yearly_data['MonthOrder'].cat.codes, yearly_data['SalesAmount'], marker='o', label=year)
-                
-            plt.xticks(ticks=range(12), labels=month_order, rotation=45)
-            plt.xlabel('Month')
-            plt.ylabel('Total Sales Amount')
-            plt.title('Total Sales per Month/Year')
-            plt.legend(title='Year')
-            plt.grid(True)
-            st.pyplot(plt)
-            
-        else:
-            st.error("Failed to connect to database.")
-            
-    except mysql.connector.Error as e:
-        st.error(f"Database connection error: {e}")
-    finally:
-        if conn:
-            conn.close()
+    dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
+    factinternetsales_query = 'SELECT OrderDateKey, SalesAmount FROM factinternetsales'
+    
+    dimtime = execute_query(dimtime_query)
+    factinternetsales = execute_query(factinternetsales_query)
+    
+    if dimtime.empty or factinternetsales.empty:
+        st.error("Failed to retrieve data.")
+        return
+    
+    merged_data = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
+    sales_per_month_year = merged_data.groupby(['CalendarYear', 'EnglishMonthName'])['SalesAmount'].sum().reset_index()
+    
+    month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    sales_per_month_year['MonthOrder'] = pd.Categorical(sales_per_month_year['EnglishMonthName'], categories=month_order, ordered=True)
+    sales_per_month_year = sales_per_month_year.sort_values(by=['CalendarYear', 'MonthOrder'])
+    
+    plt.figure(figsize=(14, 8))
+    for year in sales_per_month_year['CalendarYear'].unique():
+        yearly_data = sales_per_month_year[sales_per_month_year['CalendarYear'] == year]
+        plt.plot(yearly_data['MonthOrder'].cat.codes, yearly_data['SalesAmount'], marker='o', label=year)
+        
+    plt.xticks(ticks=range(12), labels=month_order, rotation=45)
+    plt.xlabel('Month')
+    plt.ylabel('Total Sales Amount')
+    plt.title('Total Sales per Month/Year')
+    plt.legend(title='Year')
+    plt.grid(True)
+    st.pyplot(plt)
 
 # Fungsi untuk grafik 2 di Comparisson
 def comparisson_graph_2():
