@@ -5,28 +5,17 @@ import mysql.connector
 
 def create_connection():
     try:
-        conn = st.connection("mydb", type="sql", autocommit=True)
+        conn = mysql.connector.connect(
+            host="kubela.id",
+            user="davis2024irwan",
+            password="wh451n9m@ch1n3", 
+            port="3306",
+            database="aw"
+        )
         return conn
     except mysql.connector.Error as err:
         st.error(f"Error: {err}")
         return None
-        
-# Fungsi untuk menjalankan query dan mendapatkan hasil sebagai DataFrame
-def execute_query(query):
-    conn = create_connection()
-    if conn is None:
-        return pd.DataFrame()  # Return an empty DataFrame if connection fails
-    try:
-        cursor = conn.cursor()
-        cursor.execute(query)
-        columns = [col[0] for col in cursor.description]
-        data = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return pd.DataFrame(data, columns=columns)
-    except mysql.connector.Error as err:
-        st.error(f"Error: {err}")
-        return pd.DataFrame()
 
 # Fungsi untuk grafik 1 di Comparisson
 def comparisson_graph_1():
