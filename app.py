@@ -7,7 +7,6 @@ import pymysql
 def comparisson_graph_1():
     try:
         conn = st.connection("mydb", type="sql", autocommit=True)
-        cursor = conn.cursor()
         dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
         cursor.execute(dimtime_query)
         dimtime = pd.DataFrame(cursor.fetchall(), columns=['TimeKey', 'CalendarYear', 'EnglishMonthName'])
