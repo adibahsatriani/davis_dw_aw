@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import pymysql
 
 # Fungsi untuk grafik 1 di Comparisson
 def comparisson_graph_1():
