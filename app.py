@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mysql.connector
 
-# Fungsi untuk membuat koneksi ke database
 def create_connection():
     try:
         conn = mysql.connector.connect(
@@ -287,7 +286,7 @@ if option == 'Comparisson':
     st.write("""
     **Analisa Grafik**
 
-    Grafik diatas menunjukkan total penjualan bulanan untuk setiap tahun berdasarkan data dari tabel dimtime dan factinternetsales yang digabungkan. Sumbu x menunjukkan nama bulan dari Januari hingga Desember, sementara sumbu y menunjukkan jumlah total penjualan. Garis yang berbeda dalam grafik mewakili penjualan untuk tahun yang berbeda, memungkinkan melihat bagaimana penjualan setiap bulan dan membandingkan tren penjualan antar tahun. Grafik ini membantu mengidentifikasi pola musiman dan tahunan dalam penjualan, mendukung perencanaan bisnis dan strategi pemasaran yang lebih efektif berdasarkan data historis.
+    Grafik diatas menunjukkan total penjualan bulanan untuk setiap tahun berdasarkan data dari tabel dimtime dan factinternetsales yang digabungkan. Sumbu x menunjukkan nama bulan dari Januari hingga Desember, sementara sumbu y menunjukkan jumlah total penjualan. Garis yang berbeda dalam grafik mewakili penjualan untuk tahun yang berbeda, memungkinkan melihat bagaimana penjualan setiap bulan dan membandingkan tren penjualan antar tahun. Seperti garis merah menunjungan total penjualan untuk tahun 2004, dan untuk garis hijau menunjukan penjualan pada tahun 2003, untuk garis orange menunjukan penjualan padatahun 2002, untuk garis biru menunjukan penjualan pada tahun 2001. Jika bisa dilihat dari garis pada grafik, garis merah yaitu yang menunjukan tahun 2004 memiliki penjualan tertinggi yaitu pada bulan June. 
     """)
 
     st.subheader('Graph 2: Total Sales per Sales Territory Region')
@@ -295,7 +294,7 @@ if option == 'Comparisson':
     st.write("""
     **Analisa Grafik**
 
-    Grafik bar diatas menunjukkan total penjualan untuk setiap wilayah penjualan berdasarkan data yang digabungkan dari tabel dimsalesterritory dan factinternetsales. Sumbu x menunjukkan wilayah penjualan, sementara sumbu y menunjukkan jumlah total penjualan. Setiap batang dalam grafik mewakili total penjualan di wilayah tertentu, memungkinkan melihat perbandingan penjualan antar wilayah dengan jelas. Grafik ini membantu mengidentifikasi wilayah dengan performa penjualan tinggi dan rendah, yang dapat digunakan untuk analisis lebih lanjut dan pengambilan keputusan strategis.
+    Grafik bar diatas menunjukkan total penjualan untuk setiap wilayah penjualan berdasarkan data yang digabungkan dari tabel dimsalesterritory dan factinternetsales. Sumbu x menunjukkan wilayah penjualan, sementara sumbu y menunjukkan jumlah total penjualan. Setiap batang dalam grafik mewakili total penjualan di wilayah tertentu, seperti yang bisa dilihat pada grafik bar, negara yang memiliki penjualan tertinggi adalah Australia, lalu diikuti dengan southwest, dan seterusnya. Di dalam grafik juga terdapat wilayah yang tidak ada grafik batangnya, hal itu menunjukan bahwa pada negara tersebut tidak adanya penjualan. 
     """)
     
 elif option == 'Relationship':
@@ -304,7 +303,7 @@ elif option == 'Relationship':
     st.write("""
     **Analisa Grafik**
 
-    Grafik ini menunjukkan hubungan antara persentase diskon dan jumlah penjualan berdasarkan data yang digabungkan dari tabel dimpromotion dan factinternetsales. Grafik scatter plot ini membantu dalam mengidentifikasi apakah ada korelasi antara diskon yang diberikan dan peningkatan jumlah penjualan.
+    Grafik ini menunjukkan hubungan antara persentase diskon dan jumlah penjualan berdasarkan data yang digabungkan dari tabel dimpromotion dan factinternetsales. Grafik scatter plot ini membantu dalam mengidentifikasi apakah ada korelasi antara diskon yang diberikan dan peningkatan jumlah penjualan. Seperti gambar grafik diatas untuk titik pada garis terlihat paling banyak di presentase 0% yang diartikan banyak penjualan yang tidak mendapatkan diskon, namun ada juga titik pada bagian kanan grafik yang menunjukan bahwa ada penjualan yang mendapatkan diskon mulai dari 15% - 20%
     """)
     
     st.subheader('Graph 2: List Price vs Yearly Income')
@@ -312,7 +311,7 @@ elif option == 'Relationship':
     st.write("""
     **Analisa Grafik**
 
-    Grafik ini menunjukkan hubungan antara harga daftar produk dan pendapatan tahunan pelanggan berdasarkan data dari tabel dimproduct dan dimcustomer yang digabungkan. Grafik scatter plot ini memungkinkan melihat apakah ada pola dalam bagaimana harga produk mempengaruhi pelanggan dengan pendapatan yang berbeda-beda.
+    Grafik ini menunjukkan hubungan antara harga daftar produk dan pendapatan tahunan pelanggan berdasarkan data dari tabel dimproduct dan dimcustomer yang digabungkan. Grafik scatter plot ini memungkinkan melihat apakah ada pola dalam bagaimana harga produk mempengaruhi pelanggan dengan pendapatan yang berbeda-beda. Keterkaitan ini bisa memberikan wawasan tentang daya beli pelanggan terhadap produk berdasarkan harga dan pendapatan mereka. Tetapi jika dilihat dari grafik semua sama rata, jadi untuk karyawan yang berpenghasilan tinggi pun juga masih memilih harga yang rendah, begitupun juga karyawan yang berpenghasilan rendah, jika dilihat pada grafik, mereka juga banyak yang mampu membeli dengan harga sedang maupun tinggi. 
     """)
     
 elif option == 'Composition':
@@ -321,7 +320,7 @@ elif option == 'Composition':
     st.write("""
     **Analisa Grafik**
 
-    Grafik ini menunjukkan persentase pelanggan unik berdasarkan negara berdasarkan data yang digabungkan dari tabel dimcustomer dan dimgeography. Pie chart ini memberikan gambaran proporsi pelanggan di masing-masing negara, membantu dalam analisis pasar dan strategi pemasaran yang lebih efektif.
+    Grafik ini menunjukkan persentase pelanggan unik berdasarkan negara berdasarkan data yang digabungkan dari tabel dimcustomer dan dimgeography. Pie chart ini memberikan gambaran proporsi pelanggan di masing-masing negara, membantu dalam analisis pasar dan strategi pemasaran yang lebih efektif. Jadi singkatnya grafik ini menunjukan presentasi pelanggan di Setiap negara, jika dilihat pada grafik, coklat merupakan warna yang cukup dominan dan menunjukan nilai 42.3% pada negara united states yang artinya pada negara tersebut terdapat pelanggan yang banyak, begitupun juga warna yang sedikit yatu warna orange, menunjukan nilai 8.5% pada negara Canada, yang artinya pada negara tersebut terdapat pelanggan yang jumlahnya sedikit.
     """)
     
     st.subheader('Graph 2: Komposisi Edukasi Pelanggan per Negara')
@@ -329,7 +328,7 @@ elif option == 'Composition':
     st.write("""
     **Analisa Grafik**
 
-    Grafik ini menunjukkan komposisi tingkat edukasi pelanggan per negara berdasarkan data yang digabungkan dari tabel dimcustomer dan dimgeography. Pie chart ini memberikan gambaran distribusi tingkat pendidikan di berbagai negara, yang dapat digunakan untuk memahami demografi pelanggan dan merancang strategi pemasaran yang tepat.
+    Grafik ini menunjukkan komposisi tingkat edukasi pelanggan per negara berdasarkan data yang digabungkan dari tabel dimcustomer dan dimgeography. Pie chart ini memberikan gambaran distribusi tingkat pendidikan di berbagai negara, yang dapat digunakan untuk memahami demografi pelanggan dan merancang strategi pemasaran yang tepat. Seperti komposisi pada grafik, warna biru merupakan warna yang cukup dominan dan menunjukan nilai 29% dan warna ini menunjukan tingkat edukasi Bachelors, jadi bisa disimpulkan bahwa pelanggan terbanyak dating dari tingkat edukasi Bachelors, begitu pun juga warna yang paling sedikit yaitu warna ungu, yang artinya pelanggan paling sedikit datang dari tingkat edukasi partial high school.
     """)
     
 elif option == 'Distribution':
@@ -338,5 +337,5 @@ elif option == 'Distribution':
     st.write("""
     **Analisa Grafik**
 
-    Grafik ini menunjukkan distribusi harga produk berdasarkan data dari tabel dimproduct. Histogram ini membantu dalam melihat bagaimana harga produk tersebar dan dapat memberikan wawasan tentang segmen harga yang paling umum atau jarang terjadi di pasar.
+    Grafik ini menunjukkan distribusi harga produk berdasarkan data dari tabel dimproduct. Histogram ini membantu dalam melihat bagaimana harga produk tersebar dan dapat memberikan wawasan tentang segmen harga yang paling umum atau jarang terjadi di pasar. Jika dilihat pada grafik barang yang memiliki harga sekitar 100 – 200 memiliki frekuensi yang paling tinggi, dilanjut dengan rentang harga 500 – 1000 memiliki frekuensi yang cukup tinggi dibandingkan dengan harga 3300 - 3500
     """)
