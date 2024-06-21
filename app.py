@@ -5,7 +5,13 @@ import mysql.connector
 
 def create_connection():
     try:
-       conn = st.connection("mydb", type="sql", autocomit=True)
+        conn = mysql.connector.connect(
+            host="kubela.id",
+            user="davis2024irwan",
+            password="wh451n9m@ch1n3", 
+            port="3306",
+            database="aw"
+        )
         return conn
     except mysql.connector.Error as err:
         st.error(f"Error: {err}")
