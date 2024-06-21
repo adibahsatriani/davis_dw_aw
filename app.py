@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pymysql
 
 def run_query(query):
-    conn = st.connection("mydb", type="sql", autocommit=True)
+    conn = st.experimental_connection("mydb", type="sql", autocommit=True)
     result = conn.query(query)
     return pd.DataFrame(result)
     
