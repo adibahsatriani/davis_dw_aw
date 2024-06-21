@@ -9,15 +9,13 @@ def run_query(query):
     return pd.DataFrame(result)
     
 # Fungsi untuk grafik 1 di Comparisson
-def comparisson_graph_1():
+def comparison_graph_1():
     try:
         dimtime_query = 'SELECT TimeKey, CalendarYear, EnglishMonthName FROM dimtime'
-        run_query.execute(dimtime_query)
-        dimtime = pd.DataFrame(run_query.fetchall(), columns=['TimeKey', 'CalendarYear', 'EnglishMonthName'])
+        dimtime = run_query(dimtime_query)
         
         factinternetsales_query = 'SELECT OrderDateKey, SalesAmount FROM factinternetsales'
-        run_query.execute(factinternetsales_query)
-        factinternetsales = pd.DataFrame(run_query.fetchall(), columns=['OrderDateKey', 'SalesAmount'])
+        factinternetsales = run_query(factinternetsales_query)
         
         merged_data = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
         sales_per_month_year = merged_data.groupby(['CalendarYear', 'EnglishMonthName'])['SalesAmount'].sum().reset_index()
@@ -41,7 +39,6 @@ def comparisson_graph_1():
         
     except Exception as e:
         st.error(f"Database connection error: {e}")
-
 # Fungsi untuk grafik 2 di Comparisson
 def comparisson_graph_2():
     try:
